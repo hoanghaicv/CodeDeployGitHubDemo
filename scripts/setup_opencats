@@ -57,4 +57,18 @@ config_path.write_text(text, encoding="utf-8")
 print(f"Updated {config_path} with DB settings.")
 PY
 
+if [[ ! -f opencats/vendor/autoload.php ]]; then
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "Docker is required to install PHP dependencies (composer)." >&2
+    exit 1
+  fi
+
+  echo "Installing PHP dependencies (composer install)..."
+  docker run --rm \
+    -v "${ROOT_DIR}/opencats:/app" \
+    -w /app \
+    composer:2 \
+    install --no-dev --prefer-dist --no-interaction
+fi
+
 echo "Bootstrap complete."

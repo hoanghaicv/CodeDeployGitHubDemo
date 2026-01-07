@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:7.4-apache
 
 # Enable Apache rewrite (OpenCATS uses .htaccess)
 RUN a2enmod rewrite
@@ -23,6 +23,15 @@ RUN apt-get update \
     gd \
     ldap \
   && rm -rf /var/lib/apt/lists/*
+
+# Allow .htaccess overrides under the docroot
+RUN { \
+      echo '<Directory /var/www/html>'; \
+      echo '  AllowOverride All'; \
+      echo '  Require all granted'; \
+      echo '</Directory>'; \
+    } > /etc/apache2/conf-available/opencats.conf \
+  && a2enconf opencats
 
 # Keep OpenCATS under a clean docroot mount
 WORKDIR /var/www/html
