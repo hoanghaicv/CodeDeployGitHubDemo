@@ -30,7 +30,6 @@ docker compose up -d --build
 4) Open:
 
 - OpenCATS: `http://localhost:${OPENCATS_HTTP_PORT:-8080}`
-- phpMyAdmin (optional): `http://localhost:${PHPMYADMIN_PORT:-8081}`
 
 ### Stop
 

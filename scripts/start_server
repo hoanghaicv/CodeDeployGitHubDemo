@@ -17,5 +17,4 @@ fi
 
 echo "OpenCATS is starting."
 echo "Web: http://localhost:${OPENCATS_HTTP_PORT:-8080}"
-echo "phpMyAdmin (optional): docker compose --profile tools up -d phpmyadmin"
 
