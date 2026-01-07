@@ -9,6 +9,7 @@ RUN apt-get update \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
+    libonig-dev \
     libzip-dev \
     libldap2-dev \
     zlib1g-dev \
