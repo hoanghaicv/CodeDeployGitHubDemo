@@ -36,7 +36,7 @@ text = config_path.read_text(encoding="utf-8", errors="ignore")
 
 db_user = os.getenv("MYSQL_USER", "cats")
 db_pass = os.getenv("MYSQL_PASSWORD", "cats")
-db_host = os.getenv("OPENCATS_DB_HOST", "opencatsdb")
+db_host = os.getenv("OPENCATS_DB_HOST", "db")
 db_name = os.getenv("MYSQL_DATABASE", "cats")
 
 def repl_define(name: str, value: str) -> None:

@@ -1,6 +1,6 @@
 ## OpenCATS (Docker Compose)
 
-This repository provides a simple Docker Compose setup to run **OpenCATS** locally.
+This repository provides a simple Docker Compose setup to run **OpenCATS** locally (Apache+PHP + MariaDB).
 
 ### Prerequisites
 
@@ -15,7 +15,7 @@ This repository provides a simple Docker Compose setup to run **OpenCATS** local
 cp .env.example .env
 ```
 
-2) Bootstrap OpenCATS source + config:
+2) Bootstrap OpenCATS source + config (clones OpenCATS into `./opencats/`):
 
 ```bash
 ./scripts/setup_opencats
@@ -24,7 +24,7 @@ cp .env.example .env
 3) Start OpenCATS:
 
 ```bash
-./scripts/start_server
+docker compose up -d --build
 ```
 
 4) Open:
@@ -35,7 +35,7 @@ cp .env.example .env
 ### Stop
 
 ```bash
-./scripts/stop_server
+docker compose down
 ```
 
 ### Notes
