@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+cd "${ROOT_DIR}"
+
+if [[ ! -f .env ]]; then
+  cp .env.example .env
+fi
+
+# Load .env into environment (safe-ish for simple KEY=VALUE lines)
+set -a
+# shellcheck disable=SC1091
+source .env
+set +a
+
+if [[ ! -d opencats/.git ]]; then
+  rm -rf opencats
+  git clone --depth 1 https://github.com/opencats/OpenCATS.git opencats
+fi
+
+CONFIG_FILE="opencats/config.php"
+if [[ ! -f "${CONFIG_FILE}" ]]; then
+  echo "Expected ${CONFIG_FILE} to exist after clone, but it does not." >&2
+  exit 1
+fi
+
+python3 - <<'PY'
+import os
+import re
+from pathlib import Path
+
+config_path = Path("opencats/config.php")
+text = config_path.read_text(encoding="utf-8", errors="ignore")
+
+db_user = os.getenv("MYSQL_USER", "cats")
+db_pass = os.getenv("MYSQL_PASSWORD", "cats")
+db_host = os.getenv("OPENCATS_DB_HOST", "opencatsdb")
+db_name = os.getenv("MYSQL_DATABASE", "cats")
+
+def repl_define(name: str, value: str) -> None:
+    global text
+    # define('NAME', 'value');
+    pattern = r"(define\(\s*'%s'\s*,\s*)'[^']*'(\s*\)\s*;)" % re.escape(name)
+    if re.search(pattern, text):
+        text = re.sub(pattern, r"\1'%s'\2" % value.replace("\\", "\\\\"), text)
+    else:
+        raise SystemExit(f"Could not find define('{name}', ...) in config.php")
+
+repl_define("DATABASE_USER", db_user)
+repl_define("DATABASE_PASS", db_pass)
+repl_define("DATABASE_HOST", db_host)
+repl_define("DATABASE_NAME", db_name)
+
+config_path.write_text(text, encoding="utf-8")
+print(f"Updated {config_path} with DB settings.")
+PY
+
+echo "Bootstrap complete."

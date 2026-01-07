@@ -1,0 +1,8 @@
+.env
+.DS_Store
+
+# OpenCATS source checkout (cloned by scripts/setup_opencats)
+opencats/
+
+# Local Docker bind-mounts (if you add any later)
+persist/

@@ -1,0 +1,54 @@
+services:
+  opencatsdb:
+    image: mariadb:10.11
+    container_name: opencats_mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-cats}
+      MYSQL_USER: ${MYSQL_USER:-cats}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cats}
+    ports:
+      - "3306:3306"
+    volumes:
+      - opencats_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  php:
+    image: opencats/php-base:7.2-fpm-alpine
+    container_name: opencats_php
+    depends_on:
+      opencatsdb:
+        condition: service_healthy
+    volumes:
+      - ./opencats:/var/www/public
+
+  opencats:
+    image: prooph/nginx:www
+    container_name: opencats_web
+    depends_on:
+      - php
+    ports:
+      - "${OPENCATS_HTTP_PORT:-8080}:80"
+      - "${OPENCATS_HTTPS_PORT:-8443}:443"
+    volumes:
+      - ./opencats:/var/www/public
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: opencats_phpmyadmin
+    profiles: ["tools"]
+    depends_on:
+      - opencatsdb
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
+    environment:
+      PMA_HOST: opencatsdb
+      PMA_USER: ${MYSQL_USER:-cats}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-cats}
+
+volumes:
+  opencats_db_data:
